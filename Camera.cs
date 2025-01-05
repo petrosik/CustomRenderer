@@ -1,5 +1,6 @@
 ﻿using Petrosik.Utility;
 using System.Numerics;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace CustomRenderer
 {
@@ -40,34 +41,98 @@ namespace CustomRenderer
             {
                 for (int x = 0; x < frame.GetLength(0); x++)
                 {
-                    frame[x, y] = Color.Black;
+                    frame[x, y] = WorldBackground;
                     var closest = MaxRenderDistance;
                     for (int i = 0; i < SceneCollection.Count; i++)
                     {
                         if (!SceneCollection[i].Visible) continue;
 
+                                Color? targetcolor = null;
+                        var multiplier=-1f;
                         for (int j = 0; j < SceneCollection[i].Tris.Count; j++)
                         {
                             var columnrel = new Vector3(columnCorner.X, columnCorner.Y - y * (ScreenSize.Y / (float)Resolution) * 2, columnCorner.Z + x * (ScreenSize.X / (float)Resolution) * 2);
                             if (RayIntersectsTriangle(columnrel, Origin.Direction(columnrel), SceneCollection[i].Tris[j], out var dis, out var inters) && dis < closest)
                             {
-                                var multiplier = 1 - dis.Normalize(0, MaxRenderDistance);
+                                multiplier = 1 - dis.Normalize(0, MaxRenderDistance);
                                 if (!RandomFaceColor)
                                 {
-                                    frame[x, y] = Color.FromArgb(SceneCollection[i].Color.A, (int)(SceneCollection[i].Color.R * multiplier), (int)(SceneCollection[i].Color.G * multiplier), (int)(SceneCollection[i].Color.B * multiplier));
+                                    var cust = SceneCollection[i].CustomColors.Where(x => x.j == j);
+                                    if (cust.Count() > 0)
+                                    {
+                                        var c = cust.First().c;
+                                        targetcolor =c;
+                                    }
+                                    else
+                                    {
+                                        targetcolor = SceneCollection[i].Color;
+                                    }
                                 }
                                 else
                                 {
-                                    frame[x, y] = Color.FromArgb(RFColors[i][j].A, (int)(RFColors[i][j].R * multiplier), (int)(RFColors[i][j].G * multiplier), (int)(RFColors[i][j].B * multiplier));
+                                    //frame[x, y] = Color.FromArgb(RFColors[i][j].A, (int)(RFColors[i][j].R * multiplier), (int)(RFColors[i][j].G * multiplier), (int)(RFColors[i][j].B * multiplier));
+                                    targetcolor = RFColors[i][j];
                                 }
                                 closest = dis;
                             }
+                        }
+                        if (targetcolor!= null)
+                        {
+                            frame[x, y] = Color.FromArgb((int)(targetcolor.Value.A * multiplier + WorldBackground.A * (1-multiplier)), (int)(targetcolor.Value.R * multiplier + WorldBackground.R * (1 - multiplier)), (int)(targetcolor.Value.G * multiplier + WorldBackground.G * (1 - multiplier)), (int)(targetcolor.Value.B * multiplier + WorldBackground.B * (1 - multiplier)));
                         }
                     }
                 }
             }
 
             return frame;
+        }
+        public bool RayHitCollection(List<Object> SceneCollection, Vector2 ScreenPixel,out float t, out Vector3 intersectionPoint,out Object Obj,out int trisIndex)
+        {
+            t = -1;
+            intersectionPoint = new();
+            trisIndex = 0;
+            Obj = null;
+            var closest = float.MaxValue;
+            foreach (var obj in SceneCollection)
+            {
+                if (obj.Visible&& RayHit(obj, ScreenPixel, out var t1, out intersectionPoint, out var trisIndex1) && t1<closest)
+                {
+                    Obj = obj; 
+                    closest = t1;
+                    t = t1;
+                    trisIndex = trisIndex1;
+                }
+            }
+            if (t == -1)
+            {
+                return false;
+            }
+            return true;
+        }
+        public bool RayHit(Object Obj, Vector2 ScreenPixel, out float t, out Vector3 intersectionPoint, out int trisIndex)
+        {
+            var dd = Origin + Rotation * ClipPlaneDistance;
+            var columnCorner = dd + new Vector3(0, ScreenSize.X / 2f, -(ScreenSize.Y / 2f));
+            var columnrel = new Vector3(columnCorner.X, columnCorner.Y - ScreenPixel.Y * (ScreenSize.Y / (float)Resolution) * 2, columnCorner.Z + ScreenPixel.X * (ScreenSize.X / (float)Resolution) * 2);
+            var closest = float.MaxValue;
+            t = -1;
+            intersectionPoint = new();
+            trisIndex = 0;
+            for (int i = 0; i < Obj.Tris.Count; i++)
+            {
+                if (RayIntersectsTriangle(columnrel, Origin.Direction(columnrel), Obj.Tris[i], out var t1, out var intersectionPoint1) && t1 < closest)
+                {
+                    trisIndex = i;
+                    closest = t1;
+                    t = t1;
+                    intersectionPoint = intersectionPoint1;
+                }
+            }
+            if (t == -1)
+            {
+                return false;
+            }
+            return true;
         }
         public bool RayIntersectsTriangle(Vector3 rayOrigin, Vector3 rayDirection, List<Vector3> tri, out float t, out Vector3 intersectionPoint)
         {

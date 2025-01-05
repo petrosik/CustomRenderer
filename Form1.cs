@@ -1,4 +1,5 @@
 using System.Numerics;
+using Util = Petrosik.Utility.Utility;
 
 namespace CustomRenderer
 {
@@ -6,10 +7,13 @@ namespace CustomRenderer
     {
         public static List<Object> SceneCollection = new List<Object>();
         public static Camera Camera = new Camera();
+        public static Color ClickColor = Color.Red;
+        public static bool AllowRendering = true;
         public Form1()
         {
             InitializeComponent();
             DoubleBuffered = true;
+            nud_Fog.Value = (decimal)Camera.MaxRenderDistance * 10;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -81,15 +85,53 @@ namespace CustomRenderer
                 new() {new(1, 1, 0), new(1, 1, 1), new(0, 1, 1)},
                 new() {new(0, 0, 0), new(0, 0, 1), new(1, 0, 0)},
                 new() {new(1, 0, 0), new(0, 0, 1), new(1, 0, 1)}
-            }, Color.White, orign));
+            }, Color.White, orign)
+            { Visible = false });
+
+            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "simplecube.obj")) { Origin = orign, });
+            SceneCollection[1].Position = new(0.75f, 0.5f, 0.5f);
+            //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dragon.obj")) { Origin = orign,  });
+            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "complexcube.obj")) { Origin = orign, Color = Color.GreenYellow, Visible = false });
+            //SceneCollection[1].Scale = 0.5f;
 
             Camera.Resolution = 500;
+            //Camera.WorldBackground = new();
             //Camera.MaxRenderDistance = 2f;
             //var d = Camera.RayIntersectsTriangle(new(-1, 0.2f, 0.2f), new(0.9f, 0.1f, 0), SceneColection[0].Tris[0],out var t,out var inter);
+
+            DrawObjectsVisibility();
+        }
+
+        public void DrawObjectsVisibility()
+        {
+            for (int i = 0; i < SceneCollection.Count; i++)
+            {
+                var checkBox = new CheckBox
+                {
+                    Text = $"{SceneCollection[i].Name}",
+                    Checked = SceneCollection[i].Visible,
+                    Location = new Point(2, i * 20),
+                    AutoSize = true,
+                    Tag = i
+                };
+
+                // Subscribe to CheckedChanged event
+                checkBox.CheckedChanged += (sender, e) =>
+                {
+                    var cb = sender as CheckBox;
+                    int index = (int)cb.Tag; // Retrieve the index from Tag
+                    SceneCollection[index].Visible = cb.Checked;
+                    Util.ConsoleLog($"Item {index + 1} toggled to: {SceneCollection[index]}",Petrosik.Enums.InfoType.Info);
+                    Invalidate();
+                };
+
+                p_scene.Controls.Add(checkBox);
+            }
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
+            if (!AllowRendering) return;
             var g = e.Graphics;
             var frame = Camera.RenderFrame(SceneCollection);
             for (int y = 0; y < frame.GetLength(1); y++)
@@ -192,6 +234,52 @@ namespace CustomRenderer
             else
             {
                 Camera.RFColors.Clear();
+            }
+            Invalidate();
+        }
+
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (Camera.RayHitCollection(SceneCollection, new(e.X - 10, e.Y - 10), out float t, out var inter, out var obj, out var trisi))
+            {
+                Util.ConsoleLog($"{e.X - 10},{e.Y - 10} {t} {inter} {obj.Name} {trisi}", Petrosik.Enums.InfoType.Info);
+                if (e.Button == MouseButtons.Left)
+                {
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+                    var objs = SceneCollection.Where(x => x == obj)?.First();
+                    if (objs?.CustomColors.Where(x=>x.j == trisi).Count() > 0)
+                    {
+                        objs.CustomColors.Remove(objs.CustomColors.Where(x => x.j == trisi).First());
+                    }
+                    objs.CustomColors.Add((trisi, ClickColor));
+                }
+            }
+            else
+            {
+                Util.ConsoleLog($"no obj", Petrosik.Enums.InfoType.Info);
+            }
+            Invalidate();
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            Camera.MaxRenderDistance = (float)nud_Fog.Value / 10f;
+            Invalidate();
+        }
+
+        private void p_colorpicker_MouseClick(object sender, MouseEventArgs e)
+        {
+            AllowRendering = false;
+            using (ColorDialog colorDialog = new ColorDialog())
+            {
+                if (colorDialog.ShowDialog() == DialogResult.OK)
+                {
+                    p_colorpicker.BackColor = colorDialog.Color;
+                    ClickColor = colorDialog.Color;
+                    AllowRendering = true;
+                }
             }
             Invalidate();
         }
