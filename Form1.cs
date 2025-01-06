@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Windows.Forms;
 using Util = Petrosik.Utility.Utility;
 
 namespace CustomRenderer
@@ -14,6 +15,7 @@ namespace CustomRenderer
             InitializeComponent();
             DoubleBuffered = true;
             nud_Fog.Value = (decimal)Camera.MaxRenderDistance * 10;
+            Camera.Resolution = (int)num_Res.Value;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -91,10 +93,10 @@ namespace CustomRenderer
             //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "simplecube.obj")) { Origin = orign, });
             SceneCollection[0].Position = new(0.75f, 0.5f, 0.5f);
             //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dragon.obj")) { Origin = orign,  });
-            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "complexcube.obj")) { Origin = orign, Color = Color.GreenYellow, Visible = false });
+            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "complexcube.obj")) { Origin = orign, Color = Color.Pink, Visible = false });
             //SceneCollection[1].Scale = 0.5f;
 
-            Camera.Resolution = 500;
+            //Camera.Resolution = 500;
             //Camera.WorldBackground = new();
             //Camera.MaxRenderDistance = 2f;
             //var d = Camera.RayIntersectsTriangle(new(-1, 0.2f, 0.2f), new(0.9f, 0.1f, 0), SceneColection[0].Tris[0],out var t,out var inter);
@@ -121,7 +123,7 @@ namespace CustomRenderer
                     var cb = sender as CheckBox;
                     int index = (int)cb.Tag; // Retrieve the index from Tag
                     SceneCollection[index].Visible = cb.Checked;
-                    Util.ConsoleLog($"Item {index + 1} toggled to: {SceneCollection[index]}",Petrosik.Enums.InfoType.Info);
+                    Util.ConsoleLog($"Item {index + 1} toggled to: {SceneCollection[index]}", Petrosik.Enums.InfoType.Info);
                     Invalidate();
                 };
 
@@ -249,7 +251,7 @@ namespace CustomRenderer
                 else if (e.Button == MouseButtons.Right)
                 {
                     var objs = SceneCollection.Where(x => x == obj)?.First();
-                    if (objs?.CustomColors.Where(x=>x.j == trisi).Count() > 0)
+                    if (objs?.CustomColors.Where(x => x.j == trisi).Count() > 0)
                     {
                         objs.CustomColors.Remove(objs.CustomColors.Where(x => x.j == trisi).First());
                     }
@@ -278,9 +280,37 @@ namespace CustomRenderer
                 {
                     p_colorpicker.BackColor = colorDialog.Color;
                     ClickColor = colorDialog.Color;
-                    AllowRendering = true;
                 }
+                    AllowRendering = true;
             }
+            Invalidate();
+        }
+
+        private void num_Res_ValueChanged(object sender, EventArgs e)
+        {
+            Camera.Resolution = (int)num_Res.Value;
+            Invalidate();
+        }
+
+        private void p_backpick_MouseClick(object sender, MouseEventArgs e)
+        {
+            AllowRendering = false;
+            using (ColorDialog colorDialog = new ColorDialog())
+            {
+                if (colorDialog.ShowDialog() == DialogResult.OK)
+                {
+                    p_backpick.BackColor = colorDialog.Color;
+                    Camera.WorldBackground = colorDialog.Color;
+                }
+                    AllowRendering = true;
+            }
+            Invalidate();
+        }
+
+        private void btn_ResetCol_Click(object sender, EventArgs e)
+        {
+            Camera.WorldBackground = new();
+            p_backpick.BackColor = new();
             Invalidate();
         }
     }
