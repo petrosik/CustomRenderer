@@ -76,7 +76,7 @@ namespace CustomRenderer
                 new() {new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)},
                 new() {new(1, 0, 0), new(1, 1, 0), new(0, 1, 0)},
                 new() {new(0, 0, 1), new(0, 1, 1), new(1, 0, 1)},
-                new() {new(1, 0, 1), new(0, 1, 1), new(1, 1, 1)},
+                new() {new(1, 0, 1), new(0, 1, 1), new(1, 1, 2)},
                 new() {new(0, 0, 0), new(0, 1, 0), new(0, 0, 1)},
                 new() {new(0, 1, 0), new(0, 1, 1), new(0, 0, 1)},
                 new() {new(1, 0, 0), new(1, 0, 1), new(1, 1, 0)},
@@ -88,8 +88,8 @@ namespace CustomRenderer
             }, Color.White, orign)
             { Visible = false });
 
-            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "simplecube.obj")) { Origin = orign, });
-            SceneCollection[1].Position = new(0.75f, 0.5f, 0.5f);
+            //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "simplecube.obj")) { Origin = orign, });
+            SceneCollection[0].Position = new(0.75f, 0.5f, 0.5f);
             //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dragon.obj")) { Origin = orign,  });
             SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "complexcube.obj")) { Origin = orign, Color = Color.GreenYellow, Visible = false });
             //SceneCollection[1].Scale = 0.5f;
@@ -110,7 +110,7 @@ namespace CustomRenderer
                 {
                     Text = $"{SceneCollection[i].Name}",
                     Checked = SceneCollection[i].Visible,
-                    Location = new Point(2, i * 20),
+                    Location = new Point(2, i * 25),
                     AutoSize = true,
                     Tag = i
                 };
