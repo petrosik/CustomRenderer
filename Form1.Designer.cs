@@ -46,6 +46,7 @@
             p_backpick = new Panel();
             label4 = new Label();
             btn_ResetCol = new Button();
+            label5 = new Label();
             ((System.ComponentModel.ISupportInitialize)nud_Fog).BeginInit();
             ((System.ComponentModel.ISupportInitialize)num_Res).BeginInit();
             SuspendLayout();
@@ -163,7 +164,7 @@
             // 
             label1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(874, 19);
+            label1.Location = new Point(900, 18);
             label1.Name = "label1";
             label1.Size = new Size(61, 20);
             label1.TabIndex = 9;
@@ -174,10 +175,10 @@
             p_scene.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             p_scene.AutoScroll = true;
             p_scene.BorderStyle = BorderStyle.FixedSingle;
-            p_scene.Location = new Point(639, 16);
+            p_scene.Location = new Point(569, 13);
             p_scene.Margin = new Padding(3, 4, 3, 4);
             p_scene.Name = "p_scene";
-            p_scene.Size = new Size(228, 982);
+            p_scene.Size = new Size(228, 301);
             p_scene.TabIndex = 10;
             // 
             // p_colorpicker
@@ -218,7 +219,7 @@
             // 
             label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label3.AutoSize = true;
-            label3.Location = new Point(873, 53);
+            label3.Location = new Point(882, 51);
             label3.Name = "label3";
             label3.Size = new Size(79, 20);
             label3.TabIndex = 14;
@@ -256,11 +257,22 @@
             btn_ResetCol.UseVisualStyleBackColor = true;
             btn_ResetCol.Click += btn_ResetCol_Click;
             // 
+            // label5
+            // 
+            label5.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
+            label5.AutoSize = true;
+            label5.Location = new Point(569, 510);
+            label5.Name = "label5";
+            label5.Size = new Size(360, 40);
+            label5.TabIndex = 17;
+            label5.Text = "Right click - mark tris with the click color\r\nLeft click   - writes to console a hit result from raycast";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1125, 1015);
+            ClientSize = new Size(1125, 598);
+            Controls.Add(label5);
             Controls.Add(btn_ResetCol);
             Controls.Add(label4);
             Controls.Add(p_backpick);
@@ -311,5 +323,6 @@
         private Panel p_backpick;
         private Label label4;
         private Button btn_ResetCol;
+        private Label label5;
     }
 }

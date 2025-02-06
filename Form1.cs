@@ -21,59 +21,15 @@ namespace CustomRenderer
         private void Form1_Load(object sender, EventArgs e)
         {
 
-            //SceneColection.Add(new Object("tris", new() {
-            //new() {new(0,0,0), new(0,1,0),new(0,0,1)}
-            //}, Color.White));
-            //SceneColection.Add(new Object("tris", new() {
-            //new() {new(0,1,0), new(0,1,1),new(0,0,1)}
-            //}, Color.Yellow));
-            //var orign = new Vector3(1f, 1f, 1f);
-            var orign = new Vector3(0.5f, 0.5f, 0.5f);
-            //// Front face (White)
-            //SceneCollection.Add(new Object("tris", new()
-            //{
-            //    new() {new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)},
-            //    new() {new(1, 0, 0), new(1, 1, 0), new(0, 1, 0)}
-            //}, Color.White, orign));
+            SceneCollection.Add(new Object("tris", new() {
+            new() {new(0,0,0), new(0,1,0),new(0,0,1)}
+            }, Color.White, new Vector3(0, 0, 0)));
+            //adjusting the tris object to the center of the screen
+            SceneCollection[0].Position = new Vector3(0, 0.5f, 0.5f);
 
-            //// Back face (Yellow)
-            //SceneCollection.Add(new Object("tris", new()
-            //{
-            //    new() {new(0, 0, 1), new(0, 1, 1), new(1, 0, 1)},
-            //    new() {new(1, 0, 1), new(0, 1, 1), new(1, 1, 1)}
-            //}, Color.Yellow, orign));
+            var origin = new Vector3(0.5f, 0.5f, 0.5f);
 
-            //// Left face (Blue)
-            //SceneCollection.Add(new Object("tris", new()
-            //{
-            //    new() {new(0, 0, 0), new(0, 1, 0), new(0, 0, 1)},
-            //    new() {new(0, 1, 0), new(0, 1, 1), new(0, 0, 1)}
-            //}, Color.Blue, orign)
-            //{ Visible = false });
-
-            //// Right face (Red)
-            //SceneCollection.Add(new Object("tris", new()
-            //{
-            //    new() {new(1, 0, 0), new(1, 0, 1), new(1, 1, 0)},
-            //    new() {new(1, 0, 1), new(1, 1, 1), new(1, 1, 0)}
-            //}, Color.Red, orign)
-            //{ Visible = false });
-
-            //// Top face (Green)
-            //SceneCollection.Add(new Object("tris", new()
-            //{
-            //    new() {new(0, 1, 0), new(1, 1, 0), new(0, 1, 1)},
-            //    new() {new(1, 1, 0), new(1, 1, 1), new(0, 1, 1)}
-            //}, Color.Green, orign));
-
-            //// Bottom face (Cyan)
-            //SceneCollection.Add(new Object("tris", new()
-            //{
-            //    new() {new(0, 0, 0), new(0, 0, 1), new(1, 0, 0)},
-            //    new() {new(1, 0, 0), new(0, 0, 1), new(1, 0, 1)}
-            //    }, Color.Cyan, orign));
-
-            SceneCollection.Add(new Object("tris", new()
+            SceneCollection.Add(new Object("cube", new()
             {
                 new() {new(0, 0, 0), new(1, 0, 0), new(0, 1, 0)},
                 new() {new(1, 0, 0), new(1, 1, 0), new(0, 1, 0)},
@@ -87,20 +43,16 @@ namespace CustomRenderer
                 new() {new(1, 1, 0), new(1, 1, 1), new(0, 1, 1)},
                 new() {new(0, 0, 0), new(0, 0, 1), new(1, 0, 0)},
                 new() {new(1, 0, 0), new(0, 0, 1), new(1, 0, 1)}
-            }, Color.White, orign)
+            }, Color.White, origin)
             { Visible = false });
 
-            //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "simplecube.obj")) { Origin = orign, });
-            SceneCollection[0].Position = new(0.75f, 0.5f, 0.5f);
-            //SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dragon.obj")) { Origin = orign,  });
-            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "complexcube.obj")) { Origin = orign, Color = Color.Pink, Visible = false });
-            //SceneCollection[1].Scale = 0.5f;
+            //moving cube to the back so the loaded complex cube dont overlap
+            SceneCollection[1].Position = new(0.75f, 0.5f, 0.5f);
 
-            //Camera.Resolution = 500;
-            //Camera.WorldBackground = new();
-            //Camera.MaxRenderDistance = 2f;
-            //var d = Camera.RayIntersectsTriangle(new(-1, 0.2f, 0.2f), new(0.9f, 0.1f, 0), SceneColection[0].Tris[0],out var t,out var inter);
+            //importing complex cube from file
+            SceneCollection.Add(new(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "complexcube.obj")) { Origin = origin, Color = Color.Pink, Visible = false });
 
+            //drawing the list of objects so we can control the visibility
             DrawObjectsVisibility();
         }
 
@@ -116,12 +68,10 @@ namespace CustomRenderer
                     AutoSize = true,
                     Tag = i
                 };
-
-                // Subscribe to CheckedChanged event
                 checkBox.CheckedChanged += (sender, e) =>
                 {
                     var cb = sender as CheckBox;
-                    int index = (int)cb.Tag; // Retrieve the index from Tag
+                    int index = (int)cb.Tag;
                     SceneCollection[index].Visible = cb.Checked;
                     Util.ConsoleLog($"Item {index + 1} toggled to: {SceneCollection[index]}", Petrosik.Enums.InfoType.Info);
                     Invalidate();
@@ -245,10 +195,7 @@ namespace CustomRenderer
             if (Camera.RayHitCollection(SceneCollection, new(e.X - 10, e.Y - 10), out float t, out var inter, out var obj, out var trisi))
             {
                 Util.ConsoleLog($"{e.X - 10},{e.Y - 10} {t} {inter} {obj.Name} {trisi}", Petrosik.Enums.InfoType.Info);
-                if (e.Button == MouseButtons.Left)
-                {
-                }
-                else if (e.Button == MouseButtons.Right)
+                if (e.Button == MouseButtons.Right)
                 {
                     var objs = SceneCollection.Where(x => x == obj)?.First();
                     if (objs?.CustomColors.Where(x => x.j == trisi).Count() > 0)
@@ -281,7 +228,7 @@ namespace CustomRenderer
                     p_colorpicker.BackColor = colorDialog.Color;
                     ClickColor = colorDialog.Color;
                 }
-                    AllowRendering = true;
+                AllowRendering = true;
             }
             Invalidate();
         }
@@ -302,7 +249,7 @@ namespace CustomRenderer
                     p_backpick.BackColor = colorDialog.Color;
                     Camera.WorldBackground = colorDialog.Color;
                 }
-                    AllowRendering = true;
+                AllowRendering = true;
             }
             Invalidate();
         }

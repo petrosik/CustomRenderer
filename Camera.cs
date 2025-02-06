@@ -1,6 +1,5 @@
 ﻿using Petrosik.Utility;
 using System.Numerics;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace CustomRenderer
 {
@@ -47,8 +46,8 @@ namespace CustomRenderer
                     {
                         if (!SceneCollection[i].Visible) continue;
 
-                                Color? targetcolor = null;
-                        var multiplier=-1f;
+                        Color? targetcolor = null;
+                        var multiplier = -1f;
                         for (int j = 0; j < SceneCollection[i].Tris.Count; j++)
                         {
                             var columnrel = new Vector3(columnCorner.X, columnCorner.Y - y * (ScreenSize.Y / (float)Resolution) * 2, columnCorner.Z + x * (ScreenSize.X / (float)Resolution) * 2);
@@ -61,7 +60,7 @@ namespace CustomRenderer
                                     if (cust.Count() > 0)
                                     {
                                         var c = cust.First().c;
-                                        targetcolor =c;
+                                        targetcolor = c;
                                     }
                                     else
                                     {
@@ -70,15 +69,14 @@ namespace CustomRenderer
                                 }
                                 else
                                 {
-                                    //frame[x, y] = Color.FromArgb(RFColors[i][j].A, (int)(RFColors[i][j].R * multiplier), (int)(RFColors[i][j].G * multiplier), (int)(RFColors[i][j].B * multiplier));
                                     targetcolor = RFColors[i][j];
                                 }
                                 closest = dis;
                             }
                         }
-                        if (targetcolor!= null)
+                        if (targetcolor != null)
                         {
-                            frame[x, y] = Color.FromArgb((int)(targetcolor.Value.A * multiplier + WorldBackground.A * (1-multiplier)), (int)(targetcolor.Value.R * multiplier + WorldBackground.R * (1 - multiplier)), (int)(targetcolor.Value.G * multiplier + WorldBackground.G * (1 - multiplier)), (int)(targetcolor.Value.B * multiplier + WorldBackground.B * (1 - multiplier)));
+                            frame[x, y] = Color.FromArgb((int)(targetcolor.Value.A * multiplier + WorldBackground.A * (1 - multiplier)), (int)(targetcolor.Value.R * multiplier + WorldBackground.R * (1 - multiplier)), (int)(targetcolor.Value.G * multiplier + WorldBackground.G * (1 - multiplier)), (int)(targetcolor.Value.B * multiplier + WorldBackground.B * (1 - multiplier)));
                         }
                     }
                 }
@@ -86,7 +84,7 @@ namespace CustomRenderer
 
             return frame;
         }
-        public bool RayHitCollection(List<Object> SceneCollection, Vector2 ScreenPixel,out float t, out Vector3 intersectionPoint,out Object Obj,out int trisIndex)
+        public bool RayHitCollection(List<Object> SceneCollection, Vector2 ScreenPixel, out float t, out Vector3 intersectionPoint, out Object Obj, out int trisIndex)
         {
             t = -1;
             intersectionPoint = new();
@@ -95,9 +93,9 @@ namespace CustomRenderer
             var closest = float.MaxValue;
             foreach (var obj in SceneCollection)
             {
-                if (obj.Visible&& RayHit(obj, ScreenPixel, out var t1, out intersectionPoint, out var trisIndex1) && t1<closest)
+                if (obj.Visible && RayHit(obj, ScreenPixel, out var t1, out intersectionPoint, out var trisIndex1) && t1 < closest)
                 {
-                    Obj = obj; 
+                    Obj = obj;
                     closest = t1;
                     t = t1;
                     trisIndex = trisIndex1;
