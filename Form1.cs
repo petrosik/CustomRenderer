@@ -73,7 +73,7 @@ namespace CustomRenderer
                     var cb = sender as CheckBox;
                     int index = (int)cb.Tag;
                     SceneCollection[index].Visible = cb.Checked;
-                    Util.ConsoleLog($"Item {index + 1} toggled to: {SceneCollection[index]}", Petrosik.Enums.InfoType.Info);
+                    Util.ConsoleLog($"Item {index + 1} toggled {cb.Checked} | {SceneCollection[index]}", Petrosik.Enums.InfoType.Info);
                     Invalidate();
                 };
 
